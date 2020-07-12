@@ -2,6 +2,7 @@ var userFormEl = document.getElementById('user-form');
 var nameInputEl = document.getElementById('username');
 var repoContainerEl = document.getElementById('repos-container');
 var repoSearchTerm = document.getElementById('repo-search-item');
+var languageButtonsEl = document.getElementById('language-buttons')
 
 var getUserRepos = function(user) {
     //formats the github api to accept any user
@@ -80,6 +81,33 @@ var displayRepos = function(repos, searchTerm) {
     }
 };
 
+var getFeaturedRepos = function(language) {
+    //pulls repos based on entered language and featured desiring help on issues
+    var apiUrl = "https://api.github.com/search/repositories?q=" + language +"+is:featured&sort=help-wanted-issues";
+    fetch(apiUrl).then(function(response) {
+        if (response.ok) {
+            response.json().then(function(data) {
+                //console.log(data);
+                displayRepos(data.items, language);
+            });
+            //console.log(response);
+        } else {
+            alert("Error: " + response.statusText);
+        }
+    });
+};
 
+//this function allows for one event handler to operate several buttons
+var buttonClickHandler = function(event) {
+    var language = event.target.getAttribute("data-language")
+    //console.log(language);
+    if (language) {
+        getFeaturedRepos(language);
+        //clear old content
+        repoContainerEl.textContent = "";
+    }
+}
+
+languageButtonsEl.addEventListener("click", buttonClickHandler)
 userFormEl.addEventListener("submit", formSubmitHandler);
 //getUserRepos("microsoft");
